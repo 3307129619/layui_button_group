@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset=UTF-8 />
+<title>按钮组</title>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://www.layuicdn.com/layui/css/layui.css"  media="all">
+<script src="https://www.layuicdn.com/layui/layui.js"></script>
+
+</head>
+<body>
+
+<div style='padding:10px'>
+   案例1：按钮自定义<div id="button"></div><div id='button_str'></div>
+   <hr>
+   案例2：颜色自定义<div id="button1"></div><div id='button1_str'></div>
+   <hr>
+   案例3：默认<div id="button2"></div><div id='button2_str'></div>
+   <hr>
+   案例4：按钮自定义，去除搜索<div id="button3"></div><div id='button3_str'></div>
+</div>
+
+<script>
+	/**
+     * 后台按钮组
+     * elem -- 对应的选择器
+     * size -- 按钮大小，可选项：【lg】【sm】【xs】
+     * click_color -- 初始和点击按钮的颜色，默认值：layui-btn-warm 可选：原始-【layui-btn-primary】百搭-【layui-btn-normal】暖色-【layui-btn-warm】警告-【layui-btn-danger】禁用-【layui-btn-disabled】
+     * no_click_color -- 点击后其他按钮的颜色，默认值：layui-btn-normal 可选：原始-【layui-btn-primary】百搭-【layui-btn-normal】暖色-【layui-btn-warm】警告-【layui-btn-danger】禁用-【layui-btn-disabled】
+     * id -- 唯一，这块是为了保证每个按钮组的唯一性，或者不填
+     * placeholder --  input搜索框里placeholder的值
+     * input_other -- input其他属性，可自己选填，默认为readonly，可以加入如style
+     * button -- 自定义按钮组【如果此选项为对象，那么默认的不再显示，以及默认的搜索框不再显示，需要有date才能显示】
+     *      init -- 有此值时，为默认点击，初始化成功后也是把此number先返回给本回调
+     *      number -- 回调的第一个参数值
+     *      name -- 按钮名称
+     * date -- 此值需要配合button才有效，只需要传入按钮名称
+     * success -- 回调
+     *      有两个参数，number 和 text
+     *      number -- 返回的button 中的number值，或返回默认按钮组的number值
+     *      text -- 只有当number为0时才会返回，此值为input框内的值
+     * 默认按钮组：
+     *       今天：number -- 1
+     *       昨日：number -- 2
+     *       七天：number -- 3
+     *       本月：number -- 4
+     *       全部：number -- 5
+     *       搜索：number -- 0
+	 * 值得注意的是。success回调里，必须要用双引号，否则会报没包好
+     */
+	 //案例1
+    ButtonClickList({
+        elem:"#button"
+        ,success:function(number,text){
+			$("#button_str").html("当前number值："+number+"当前input框值："+text);
+        },
+        button:[
+            {init:true,name:"今日",number:1}
+            ,{name:"七日",number:2}
+			,{name:"本月",number:3}
+			,{name:"全部",number:4}
+        ],
+        date:"搜索"
+    });
+	
+	//案例2
+	ButtonClickList({
+        elem:"#button1"
+        ,success:function(number,text){
+		console.log(number);
+			$("#button1_str").html("当前number值："+number+"当前input框值："+text);
+        },
+		size:"lg",
+		click_color:"layui-btn-danger",
+		no_click_color:"layui-btn-primary",
+		placeholder:"测试数据",
+		input_other : ""
+    });
+	//案例3
+	ButtonClickList({
+        elem:"#button2"
+        ,success:function(number,text){
+			$("#button2_str").html("当前number值："+number+"当前input框值："+text);
+        },
+    });
+	//案例4
+    ButtonClickList({
+        elem:"#button3"
+        ,success:function(number,text){
+			$("#button3_str").html("当前number值："+number+"当前input框值："+text);
+        },
+        button:[
+            {init:true,name:"今日",number:1}
+            ,{name:"七日",number:2}
+			,{name:"本月",number:3}
+			,{name:"全部",number:4}
+        ]
+    });
+  // 按钮组
+    function ButtonClickList(obj){
+        var button_size = obj.sise?obj.sise:'sm';
+        var button_click_color = obj.click_color?obj.click_color:'layui-btn-warm';
+        var button_no_click_color = obj.no_click_color?obj.no_click_color:'layui-btn-normal';
+        var id = Math.random().toString(36).slice(-8);
+        obj.size = button_size;
+        obj.click_color = button_click_color;
+        obj.no_click_color = button_no_click_color;
+        obj.id = obj.id?obj.id:id;
+        obj.placeholder = obj.placeholder?obj.placeholder:"搜索日期";
+        obj.input_other = obj.input_other?obj.input_other:"readonly";
+        var init = 1;
+        if(typeof obj.button == 'object'){
+            var html = "";
+            $.each(obj.button,function(key,val){
+                if(val.init){
+                    init = val.number;
+                    html += "<button class='layui-btn layui-btn-"+button_size+" "+obj.click_color+" class_button_"+obj.id+"' data='"+JSON.stringify(obj)+"' onclick='button_color(this,"+val.number+","+obj.success+")'>"+val.name+"</button>";
+                }else{
+                    html += "<button class='layui-btn layui-btn-"+button_size+" "+obj.no_click_color+" class_button_"+obj.id+"' data='"+JSON.stringify(obj)+"' onclick='button_color(this,"+val.number+","+obj.success+")'>"+val.name+"</button>";
+                }
+            })
+            if(obj.date){
+                html += "<div class=\"layui-input-inline\" style='margin-left: 10px'>\n" +
+                    "<input type=\"text\" id=\"date_"+obj.id+"\" class=\"layui-input\" autocomplete=\"off\" placeholder=\""+obj.placeholder+"\" "+obj.input_other+">\n" +
+                    "</div>";
+                html += "<button class='layui-btn layui-btn-"+button_size+" "+obj.no_click_color+" class_button_"+obj.id+"' data='"+JSON.stringify(obj)+"' onclick='button_color(this,0,"+obj.success+")'>"+obj.date+"</button>";
+            }
+        }else{
+            var html = "<button class='layui-btn layui-btn-"+button_size+" "+obj.click_color+" class_button_"+obj.id+" ' data='"+JSON.stringify(obj)+"' onclick='button_color(this,1,"+obj.success+")'>今日</button>";
+            html += "<button class='layui-btn layui-btn-"+button_size+" "+obj.no_click_color+" class_button_"+obj.id+"' data='"+JSON.stringify(obj)+"' onclick='button_color(this,2,"+obj.success+")'>昨日</button>";
+            html += "<button class='layui-btn layui-btn-"+button_size+" "+obj.no_click_color+" class_button_"+obj.id+"' data='"+JSON.stringify(obj)+"' onclick='button_color(this,3,"+obj.success+")'>七天</button>";
+            html += "<button class='layui-btn layui-btn-"+button_size+" "+obj.no_click_color+" class_button_"+obj.id+"' data='"+JSON.stringify(obj)+"' onclick='button_color(this,4,"+obj.success+")'>本月</button>";
+            html += "<button class='layui-btn layui-btn-"+button_size+" "+obj.no_click_color+" class_button_"+obj.id+"' data='"+JSON.stringify(obj)+"' onclick='button_color(this,5,"+obj.success+")'>全部</button>";
+            html += "<div class=\"layui-input-inline\" style='margin-left: 10px'>\n" +
+                "<input type=\"text\" id=\"date_"+obj.id+"\" class=\"layui-input\" autocomplete=\"off\" placeholder=\""+obj.placeholder+"\" "+obj.input_other+">\n" +
+                "</div>";
+            html += "<button class='layui-btn layui-btn-"+button_size+" "+obj.no_click_color+" class_button_"+obj.id+"' data='"+JSON.stringify(obj)+"' onclick='button_color(this,0,"+obj.success+")'>搜索</button>";
+        }
+        $(obj.elem).html(html);
+        layui.use('laydate', function(){
+            var laydate = layui.laydate;
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#date_'+obj.id //指定元素
+				,range: true
+            });
+        });
+        if(typeof obj.success == 'function'){
+            return obj.success(init,'');
+        }
+    }
+
+    //按钮点击后更换颜色
+    function button_color(self,type,call){
+
+        var data = $(self).attr('data');
+        var json = JSON.parse(data);
+        var text = "";
+        if(type == 0){
+            text = $('#date_'+json.id).val();
+            if(text == ''){
+                return layer.msg('请选择日期');
+            }
+        }
+        $('.class_button_'+json.id).each(function(key,val){
+            $(val).removeClass(json.click_color);
+            $(val).addClass(json.no_click_color);
+        })
+        $(self).addClass(json.click_color);
+        $(self).removeClass(json.no_click_color);
+        if(typeof call == 'function'){
+            return call(type,text);
+        }
+    }
+</script>
+</body>
+</html>
